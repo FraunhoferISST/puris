@@ -1,0 +1,31 @@
+package org.eclipse.tractusx.puris.backend.materialdemand.domain.model;
+
+public enum UnitOfMeasure {
+    GRM,
+    KGM,
+    TNE,
+    STN,
+    ONZ,
+    MTR,
+    KTM,
+    INH,
+    FOT,
+    YRD,
+    CMK,
+    MTK,
+    INK,
+    FTK,
+    YDK,
+    CMQ,
+    MTQ,
+    INQ,
+    YDQ,
+    MLT,
+    LTR,
+    HLT,
+    H87,
+    SET,
+    PR,
+    ZP,
+    KWH;
+}
