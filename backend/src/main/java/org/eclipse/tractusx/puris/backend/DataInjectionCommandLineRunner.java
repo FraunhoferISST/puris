@@ -385,6 +385,10 @@ public class DataInjectionCommandLineRunner implements CommandLineRunner {
         materialDemand = materialDemandService.findById(materialDemand.getMaterialDemandId(), materialDemand.getCustomer());
         log.info("Found in Database? " + (materialDemand!=null));
         log.info(materialDemand.toString());
+        var searchResult = materialDemandService.findAllByCustomerBPNL("BPNL4444444444XX");
+        log.info("Found by customer bpnl? " + (!searchResult.isEmpty()));
+        searchResult = materialDemandService.findAllBySupplierBPNL("BPNL1234567890ZZ");
+        log.info("Found by supplier bpnl? " + (!searchResult.isEmpty()));
 
     }
 }

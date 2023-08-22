@@ -25,7 +25,13 @@ import org.eclipse.tractusx.puris.backend.materialdemand.domain.model.MaterialDe
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface MaterialDemandRepository extends JpaRepository<MaterialDemand, MaterialDemand.Key> {
+
+    List<MaterialDemand> findAllByKey_Customer(String customerBpnl);
+
+    List<MaterialDemand> findAllBySupplier(String supplierBpnl);
 
 }

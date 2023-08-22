@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -52,47 +53,67 @@ public class MaterialDemandService {
     private VariablesService variablesService;
 
 
-    public MaterialDemand create(MaterialDemand materialDemand) {
-        if (materialDemand.getSupplier() == null || !bpnlPattern.matcher(materialDemand.getSupplier()).matches()) {
-            log.warn("Failed to create " + materialDemand + "\nBad Supplier BPNL");
+    public MaterialDemand update(MaterialDemand materialDemand) {
+        if (!testConstraints(materialDemand)) {
             return null;
+        }
+        var searchResult = materialDemandRepository.findById(materialDemand.getKey());
+        if (searchResult.isPresent()) {
+            return materialDemandRepository.save(materialDemand);
+        }
+        log.warn("Failed to update \n" + materialDemand);
+        log.warn("No such entity was previously saved to database");
+        return null;
+    }
+
+    public MaterialDemand create(MaterialDemand materialDemand) {
+        if (testConstraints(materialDemand)) {
+            return materialDemandRepository.save(materialDemand);
+        }
+        return null;
+    }
+
+    private boolean testConstraints(MaterialDemand materialDemand) {
+        if (materialDemand.getSupplier() == null || !bpnlPattern.matcher(materialDemand.getSupplier()).matches()) {
+            log.warn("Failed to create/update " + materialDemand + "\nBad Supplier BPNL");
+            return false;
         }
         if (!materialDemand.getSupplier().equals(variablesService.getOwnBpnl()) &&
             partnerService.findByBpnl(materialDemand.getSupplier()) == null) {
             log.warn("Unknown supplier: " + materialDemand.getSupplier());
         }
         if (materialDemand.getCustomer() == null || !bpnlPattern.matcher(materialDemand.getCustomer()).matches()) {
-            log.warn("Failed to create " + materialDemand + "\nBad Customer BPNL");
-            return null;
+            log.warn("Failed to create/update " + materialDemand + "\nBad Customer BPNL");
+            return false;
         }
         if (!materialDemand.getCustomer().equals(variablesService.getOwnBpnl()) &&
             partnerService.findByBpnl(materialDemand.getCustomer()) == null) {
             log.warn("Unknown customer: " + materialDemand.getCustomer());
         }
         if (materialDemand.getMaterialDemandId() == null) {
-            log.warn("Failed to create " + materialDemand + "\nMissing MaterialDemandId");
+            log.warn("Failed to create/update " + materialDemand + "\nMissing MaterialDemandId");
         }
         for (DemandSeries demandSeries : materialDemand.getDemandSeries()) {
             if (demandSeries.getCustomerLocation() == null || !bpnsPattern.matcher(demandSeries.getCustomerLocation()).matches()) {
-                log.warn("Failed to create " + materialDemand + "\nBad Customer BPNS in demand series");
-                return null;
+                log.warn("Failed to create/update " + materialDemand + "\nBad Customer BPNS in demand series");
+                return false;
             }
             if (demandSeries.getExpectedSupplierLocation() == null || !bpnsPattern.matcher(demandSeries.getExpectedSupplierLocation()).matches()) {
-                log.warn("Failed to create " + materialDemand + "\nBad expected supplier BPNS in demand series");
-                return null;
+                log.warn("Failed to create/update " + materialDemand + "\nBad expected supplier BPNS in demand series");
+                return false;
             }
             demandSeries.getKey().setForeignKey(materialDemand.getKey());
             for (Demand demand : demandSeries.getDemands()) {
                 if (demand.getDemandRate() == DemandRate.week && !demand.getPointInTime().getDayOfWeek().equals(DayOfWeek.MONDAY)) {
-                    log.warn("Failed to create " + materialDemand + "\nWeekly demand not starting on a monday");
-                    return null;
+                    log.warn("Failed to create/update " + materialDemand + "\nWeekly demand not starting on a monday");
+                    return false;
                 }
             }
             StringBuilder errorMessageHelper = new StringBuilder();
             var findDoublets = demandSeries.getDemands().stream().filter(d -> {
                 for (var other : demandSeries.getDemands()) {
                     if (d != other && d.getDemandRate().equals(other.getDemandRate()) && d.getPointInTime().equals(other.getPointInTime())) {
-                        if(d.hashCode() < other.hashCode()) {
+                        if (d.hashCode() < other.hashCode()) {
                             errorMessageHelper.append(" " + d.getDemandRate() + ", " + d.getPointInTime() + " ");
                         }
                         return true;
@@ -100,17 +121,28 @@ public class MaterialDemandService {
                 }
                 return false;
             }).findAny();
-            if(findDoublets.isPresent()) {
-                log.warn("Failed to create " + materialDemand + "\nFaulty DemandSeries: More than one demand for a date or calendar week: " + errorMessageHelper);
-                return null;
+            if (findDoublets.isPresent()) {
+                log.warn("Failed to create/update " + materialDemand + "\nFaulty DemandSeries: More than one demand for a date or calendar week: " + errorMessageHelper);
+                return false;
             }
         }
-
-        return materialDemandRepository.save(materialDemand);
+        return true;
     }
 
     public MaterialDemand findById(UUID uuid, String customerBPNL) {
         return materialDemandRepository.findById(new MaterialDemand.Key(uuid, customerBPNL)).orElse(null);
+    }
+
+    public MaterialDemand find(MaterialDemand materialDemand) {
+        return findById(materialDemand.getMaterialDemandId(), materialDemand.getCustomer());
+    }
+
+    public List<MaterialDemand> findAllByCustomerBPNL(String customerBPNL) {
+        return materialDemandRepository.findAllByKey_Customer(customerBPNL);
+    }
+
+    public List<MaterialDemand> findAllBySupplierBPNL(String supplierBPNL) {
+        return materialDemandRepository.findAllBySupplier(supplierBPNL);
     }
 
 }

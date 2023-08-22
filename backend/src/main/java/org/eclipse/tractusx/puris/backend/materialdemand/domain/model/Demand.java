@@ -50,7 +50,7 @@ public class Demand {
             "pointInTime=" + pointInTime +
             ", demandRate=" + demandRate;
         if (fixedPointQuantityFlag) {
-            output += "\", fixedPointConstraint=\" + fixedPointConstraint";
+            output += ", fixedPointConstraint=" + fixedPointConstraint;
         } else {
             output += ", rangeLowerBoundary=" + rangeLowerBoundary +
                 ", rangeUpperBoundary=" + rangeUpperBoundary;
