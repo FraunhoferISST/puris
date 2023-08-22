@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023 Volkswagen AG
- * Copyright (c) 2023 Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V. (represented by Fraunhofer ISST)
+ * Copyright (c) 2023 Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * (represented by Fraunhofer ISST)
  * Copyright (c) 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -18,21 +19,16 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package org.eclipse.tractusx.puris.backend.common.api.logic.dto;
+package org.eclipse.tractusx.puris.backend.stock.logic.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-import org.eclipse.tractusx.puris.backend.stock.domain.model.ProductStockResponse;
 
-/**
- * Dto for {@link ProductStockResponse}
- */
 @Getter
 @Setter
-@ToString
-@NoArgsConstructor
-public class ResponseDto extends MessageDto {
-
+@AllArgsConstructor
+public class FrontendMaterialDto {
+    String ownMaterialNumber;
+    String description;
 }

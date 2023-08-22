@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PartnerProductStockServiceImpl implements PartnerProductStockService {
 
-
     private PartnerProductStockRepository partnerProductStockRepository;
 
     private MaterialPartnerRelationService mprService;
@@ -70,6 +69,7 @@ public class PartnerProductStockServiceImpl implements PartnerProductStockServic
     }
 
     @Override
+
     public List<PartnerProductStock> findAllByOwnMaterialNumberAndPartnerUuid(String ownMaterialNumber, UUID partnerUuid) {
         return partnerProductStockRepository.findAllByMaterial_OwnMaterialNumberAndTypeAndSupplierPartner_Uuid(
             ownMaterialNumber, DT_StockTypeEnum.PRODUCT, partnerUuid);
@@ -84,7 +84,5 @@ public class PartnerProductStockServiceImpl implements PartnerProductStockServic
             .stream()
             .filter(pps -> materialsList.contains(pps.getMaterial()))
             .collect(Collectors.toList());
-
-
     }
 }
