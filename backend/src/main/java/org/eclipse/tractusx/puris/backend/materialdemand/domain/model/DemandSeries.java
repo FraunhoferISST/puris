@@ -22,9 +22,7 @@
 package org.eclipse.tractusx.puris.backend.materialdemand.domain.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,22 +35,26 @@ import java.util.UUID;
 @ToString
 public class DemandSeries {
     @EmbeddedId
-    Key key;
+    private Key key = new Key();
     // BPNS
     private String customerLocation;
     // BPNS
     private String expectedSupplierLocation;
-
     private DemandCategory demandCategory;
-
     @ElementCollection
     private List<Demand> demands = new ArrayList<>();
 
     @Embeddable
+    @Getter
+    @Setter
+    @EqualsAndHashCode
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @ToString
     public static class Key implements Serializable {
-        MaterialDemand.Key foreignKey;
-        @GeneratedValue(strategy = GenerationType.UUID)
-        UUID uuid;
+        private MaterialDemand.Key foreignKey;
+
+        private UUID uuid = UUID.randomUUID();
 
     }
 

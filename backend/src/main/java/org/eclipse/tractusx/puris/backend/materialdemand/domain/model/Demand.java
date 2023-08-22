@@ -25,13 +25,15 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Embeddable
 public class Demand {
 
-    private LocalDateTime pointInTime;
+    private LocalDate pointInTime;
 
     private DemandRate demandRate;
 
@@ -53,6 +55,6 @@ public class Demand {
             output += ", rangeLowerBoundary=" + rangeLowerBoundary +
                 ", rangeUpperBoundary=" + rangeUpperBoundary;
         }
-        return output +  '}';
+        return output + '}';
     }
 }

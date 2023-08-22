@@ -33,6 +33,8 @@ import org.eclipse.tractusx.puris.backend.masterdata.domain.model.Partner;
 import org.eclipse.tractusx.puris.backend.masterdata.logic.service.MaterialPartnerRelationService;
 import org.eclipse.tractusx.puris.backend.masterdata.logic.service.MaterialService;
 import org.eclipse.tractusx.puris.backend.masterdata.logic.service.PartnerService;
+import org.eclipse.tractusx.puris.backend.materialdemand.domain.model.*;
+import org.eclipse.tractusx.puris.backend.materialdemand.logic.service.MaterialDemandService;
 import org.eclipse.tractusx.puris.backend.stock.domain.model.*;
 import org.eclipse.tractusx.puris.backend.stock.logic.adapter.ProductStockSammMapper;
 import org.eclipse.tractusx.puris.backend.stock.logic.dto.samm.ProductStockSammDto;
@@ -46,6 +48,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -78,6 +83,9 @@ public class DataInjectionCommandLineRunner implements CommandLineRunner {
     @Autowired
     private ProductStockRequestService productStockRequestService;
 
+    @Autowired
+    private MaterialDemandService materialDemandService;
+
 
     @Value("${puris.demonstrator.role}")
     private String demoRole;
@@ -101,6 +109,7 @@ public class DataInjectionCommandLineRunner implements CommandLineRunner {
         } else if (demoRole.equals(("customer"))) {
             setupCustomerRole();
             createRequest();
+            createSampleMaterialDemand();
         } else {
             log.info("No role specific setup was created");
         }
@@ -341,6 +350,41 @@ public class DataInjectionCommandLineRunner implements CommandLineRunner {
         var deserializedRequest =  objectMapper.readValue(stringOutput, ProductStockRequest.class);
         log.info(deserializedRequest.toString());
 
+
+    }
+
+    private void createSampleMaterialDemand() {
+        MaterialDemand materialDemand = new MaterialDemand();
+        materialDemand.setKey(new MaterialDemand.Key(UUID.randomUUID(), "BPNL4444444444XX"));
+        materialDemand.setMaterialNumberCustomer(semiconductorMatNbrCustomer);
+        materialDemand.setMaterialNumberSupplier(semiconductorMatNbrSupplier);
+        materialDemand.setMaterialDescriptionCustomer("my favorite semiconductors");
+        materialDemand.setChangedAt(LocalDateTime.now());
+        materialDemand.setUnitOfMeasure(UnitOfMeasure.KGM);
+        materialDemand.setSupplier("BPNL1234567890ZZ");
+        DemandSeries demandSeries1 = new DemandSeries();
+        demandSeries1.setCustomerLocation("BPNS4444444444XX");
+        demandSeries1.setExpectedSupplierLocation("BPNS1234567890ZZ");
+        demandSeries1.setDemandCategory(DemandCategory.Default);
+        Demand demand1 = new Demand();
+        demand1.setDemandRate(DemandRate.week);
+        demand1.setPointInTime(LocalDate.parse("2023-09-04"));
+        demand1.setFixedPointQuantityFlag(true);
+        demand1.setFixedPointConstraint(100);
+        demandSeries1.getDemands().add(demand1);
+        Demand demand2 = new Demand();
+        demand2.setDemandRate(DemandRate.day);
+        demand2.setPointInTime(LocalDate.parse("2023-09-13"));
+        demand2.setFixedPointQuantityFlag(false);
+        demand2.setRangeUpperBoundary(70);
+        demand2.setRangeLowerBoundary(30);
+        demandSeries1.getDemands().add(demand2);
+        materialDemand.getDemandSeries().add(demandSeries1);
+        materialDemand = materialDemandService.create(materialDemand);
+        log.info("Created Sample Material Demand:\n" + materialDemand.toString());
+        materialDemand = materialDemandService.findById(materialDemand.getMaterialDemandId(), materialDemand.getCustomer());
+        log.info("Found in Database? " + (materialDemand!=null));
+        log.info(materialDemand.toString());
 
     }
 }

@@ -39,7 +39,7 @@ import java.util.UUID;
 public class MaterialDemand {
 
     @EmbeddedId
-    private Key key;
+    private Key key = new Key();
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<DemandSeries> demandSeries = new ArrayList<>();
@@ -58,6 +58,13 @@ public class MaterialDemand {
 
     private LocalDateTime changedAt;
 
+    public String getCustomer() {
+        return key.getCustomer();
+    }
+
+    public UUID getMaterialDemandId() {
+        return key.getMaterialDemandId();
+    }
 
 
     @Embeddable
@@ -66,6 +73,7 @@ public class MaterialDemand {
     @Getter
     @Setter
     @EqualsAndHashCode
+    @ToString
     public static class Key implements Serializable {
         private UUID materialDemandId;
         // BPNL
