@@ -389,6 +389,8 @@ public class DataInjectionCommandLineRunner implements CommandLineRunner {
         log.info("Found by customer bpnl? " + (!searchResult.isEmpty()));
         searchResult = materialDemandService.findAllBySupplierBPNL("BPNL1234567890ZZ");
         log.info("Found by supplier bpnl? " + (!searchResult.isEmpty()));
+        searchResult = materialDemandService.findAllByOwnMaterialNumber(semiconductorMatNbrCustomer);
+        log.info("Found by ownMaterialNumber? " + (!searchResult.isEmpty()));
 
     }
 }

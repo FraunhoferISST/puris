@@ -34,4 +34,6 @@ public interface MaterialDemandRepository extends JpaRepository<MaterialDemand, 
 
     List<MaterialDemand> findAllBySupplier(String supplierBpnl);
 
+    List<MaterialDemand> findAllByMaterialNumberCustomerOrMaterialNumberSupplier(String ownMaterialNumber, String ownMaterialNumberCopy);
+
 }

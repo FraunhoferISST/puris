@@ -23,6 +23,7 @@ package org.eclipse.tractusx.puris.backend.materialdemand.logic.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.tractusx.puris.backend.common.api.logic.service.VariablesService;
+import org.eclipse.tractusx.puris.backend.masterdata.logic.service.MaterialService;
 import org.eclipse.tractusx.puris.backend.masterdata.logic.service.PartnerService;
 import org.eclipse.tractusx.puris.backend.materialdemand.domain.model.Demand;
 import org.eclipse.tractusx.puris.backend.materialdemand.domain.model.DemandRate;
@@ -50,9 +51,18 @@ public class MaterialDemandService {
     @Autowired
     private PartnerService partnerService;
     @Autowired
+    private MaterialService materialService;
+    @Autowired
     private VariablesService variablesService;
 
 
+    /**
+     * Update an existing MaterialDemand entity
+     *
+     * @param materialDemand representing an object existing in the database but including some changes to be stored.
+     * @return the updated entity or null if no corresponding object was found in the database or if
+     * the constraints are not met.
+     */
     public MaterialDemand update(MaterialDemand materialDemand) {
         if (!testConstraints(materialDemand)) {
             return null;
@@ -66,7 +76,17 @@ public class MaterialDemandService {
         return null;
     }
 
+    /**
+     * Creates a MaterialDemand entity by storing it to the database.
+     *
+     * @param materialDemand representing a new object to be stored in the database.
+     * @return the created object or null if this object existed before or does not meet the constraints.
+     */
     public MaterialDemand create(MaterialDemand materialDemand) {
+        var searchResult = materialDemandRepository.findById(materialDemand.getKey());
+        if (searchResult.isPresent()) {
+            return null;
+        }
         if (testConstraints(materialDemand)) {
             return materialDemandRepository.save(materialDemand);
         }
@@ -89,6 +109,10 @@ public class MaterialDemandService {
         if (!materialDemand.getCustomer().equals(variablesService.getOwnBpnl()) &&
             partnerService.findByBpnl(materialDemand.getCustomer()) == null) {
             log.warn("Unknown customer: " + materialDemand.getCustomer());
+        }
+        if (materialService.findByOwnMaterialNumber(materialDemand.getMaterialNumberCustomer()) == null
+            && materialService.findByOwnMaterialNumber(materialDemand.getMaterialNumberSupplier()) == null) {
+            log.warn("Unknown Material: " + materialDemand.getMaterialNumberSupplier() + " " + materialDemand.getMaterialNumberCustomer());
         }
         if (materialDemand.getMaterialDemandId() == null) {
             log.warn("Failed to create/update " + materialDemand + "\nMissing MaterialDemandId");
@@ -125,6 +149,18 @@ public class MaterialDemandService {
                 log.warn("Failed to create/update " + materialDemand + "\nFaulty DemandSeries: More than one demand for a date or calendar week: " + errorMessageHelper);
                 return false;
             }
+
+            for (var demand : demandSeries.getDemands()) {
+                if (demand.isFixedPointQuantityFlag()) {
+                    if (demand.getFixedPointConstraint() <= 0) {
+                        log.warn("Fixed point quantity for demand " + demand + " not properly set");
+                    }
+                } else {
+                    if (demand.getRangeUpperBoundary() <= 0 || demand.getRangeLowerBoundary() >= demand.getRangeUpperBoundary()) {
+                        log.warn("Quantity range for demand " + demand + " not properly set");
+                    }
+                }
+            }
         }
         return true;
     }
@@ -143,6 +179,17 @@ public class MaterialDemandService {
 
     public List<MaterialDemand> findAllBySupplierBPNL(String supplierBPNL) {
         return materialDemandRepository.findAllBySupplier(supplierBPNL);
+    }
+
+    public List<MaterialDemand> findAllByOwnMaterialNumber(String ownMaterialNumber) {
+        var resultList = materialDemandRepository.findAllByMaterialNumberCustomerOrMaterialNumberSupplier
+            (ownMaterialNumber, ownMaterialNumber);
+        return resultList
+            .stream()
+            .filter(m ->
+                (m.getSupplier().equals(variablesService.getOwnBpnl()) && m.getMaterialNumberSupplier().equals(ownMaterialNumber))
+                    || (m.getCustomer().equals(variablesService.getOwnBpnl()) && m.getMaterialNumberCustomer().equals(ownMaterialNumber)))
+            .collect(Collectors.toList());
     }
 
 }

@@ -30,6 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * This class represents the content a MaterialDemand message that is sent or
+ * that was received by a partner.
+ */
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
