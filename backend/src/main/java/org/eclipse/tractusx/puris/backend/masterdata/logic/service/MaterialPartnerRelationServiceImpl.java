@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023 Volkswagen AG
- * Copyright (c) 2023 Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
- * (represented by Fraunhofer ISST)
- * Copyright (c) 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Volkswagen AG
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -233,6 +231,20 @@ public class MaterialPartnerRelationServiceImpl implements MaterialPartnerRelati
     @Override
     public List<Material> findAllByPartnerMaterialNumber(String partnerMaterialNumber) {
         return mprRepository.findAllByPartnerMaterialNumber(partnerMaterialNumber)
+            .stream()
+            .map(mpr -> mpr.getMaterial())
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns a list of all Materials, for which a MaterialPartnerRelation exists,
+     * where the respective supplier is using the given partnerMaterialNumber.
+     * @param partnerMaterialNumber
+     * @return a list of Materials
+     */
+    @Override
+    public List<Material> findAllBySupplierPartnerMaterialNumber(String partnerMaterialNumber) {
+        return mprRepository.findAllByPartnerMaterialNumberAndPartnerSuppliesMaterial(partnerMaterialNumber)
             .stream()
             .map(mpr -> mpr.getMaterial())
             .collect(Collectors.toList());

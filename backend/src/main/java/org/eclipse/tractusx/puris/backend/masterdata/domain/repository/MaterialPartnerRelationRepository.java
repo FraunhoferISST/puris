@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023 Volkswagen AG
- * Copyright (c) 2023 Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
- * (represented by Fraunhofer ISST)
- * Copyright (c) 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Volkswagen AG
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -44,4 +42,6 @@ public interface MaterialPartnerRelationRepository extends JpaRepository<Materia
     List<MaterialPartnerRelation> findAllByMaterial_OwnMaterialNumberAndPartnerBuysMaterialIsTrue(String ownMaterialNumber);
 
     List<MaterialPartnerRelation> findAllByPartnerMaterialNumber(String partnerMaterialNumber);
+
+    List<MaterialPartnerRelation> findAllByPartnerMaterialNumberAndPartnerSuppliesMaterial(String partnerMaterialNumber);
 }
