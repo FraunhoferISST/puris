@@ -159,6 +159,21 @@ public class EdcAdapterService {
         }
     }
 
+    public boolean createContractDefinitionForDTR(String bpnl, int port) {
+        var body = edcRequestBodyBuilder.buildContractDefinitionForDTR(bpnl, port);
+        try {
+            var response = sendPostRequest(body, List.of("v2", "contractdefinitions"));
+            boolean result = response.isSuccessful();
+            if(!result) {
+                log.warn("Contract definition registration failed for partner " + bpnl + " and DTR" + "\n" + response.body().string());
+            }
+            response.body().close();
+            return result;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /**
      * Registers a policy definitions that allows only the given partner's
      * BPNL.
@@ -200,6 +215,27 @@ public class EdcAdapterService {
             return result;
         } catch (Exception e) {
             log.error("Failed to register api asset " + apiMethod.PURPOSE, e);
+            return false;
+        }
+    }
+
+    /**
+     * Util method to register an asset to your control plane.
+     *
+     * @param bodyParam the body of the asset as JsonNode.
+     * @return true if successful.
+     */
+    public boolean registerAsset(JsonNode bodyParam) {
+        try {
+            var response = sendPostRequest(bodyParam, List.of("v3", "assets"));
+            boolean result = response.isSuccessful();
+            if (!result) {
+                log.warn("Asset registration failed \n" + response.body().string());
+            }
+            response.body().close();
+            return result;
+        } catch (Exception e) {
+            log.error("Failed to register asset ", e);
             return false;
         }
     }

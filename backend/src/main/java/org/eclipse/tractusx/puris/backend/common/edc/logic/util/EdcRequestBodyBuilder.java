@@ -112,6 +112,42 @@ public class EdcRequestBodyBuilder {
         return body;
     }
 
+    public JsonNode buildDigitalTwinRegistryAssetBody(int port) {
+        var body = MAPPER.createObjectNode();
+
+        var context = MAPPER.createObjectNode();
+        context.put(VOCAB_KEY, EDC_NAMESPACE);
+        context.put("cx-taxo", CX_TAXO_NAMESPACE);
+        context.put("cx-common", CX_COMMON_NAMESPACE);
+        context.put("dct", DCT_NAMESPACE);
+        body.set("@context", context);
+
+        body.put("@type", "Asset");
+        body.put("@id", "DigitalTwinRegistryId" + port);
+
+        var propertiesObject = MAPPER.createObjectNode();
+        var dctTypeObject = MAPPER.createObjectNode();
+        dctTypeObject.put("@id", "cx-taxo:DigitalTwinRegistry");
+        propertiesObject.set("dct:type", dctTypeObject);
+        propertiesObject.put("cx-common:version", "3.0");
+        propertiesObject.put("asset:prop:type", "data.core.digitalTwinRegistry");
+        propertiesObject.put("description", "");
+        body.set("properties", propertiesObject);
+
+        var dataAddress = MAPPER.createObjectNode();
+        String url = "http://localhost:" + port + "/";
+        dataAddress.put("baseUrl", url);
+        dataAddress.put("type", "HttpData");
+        dataAddress.put("proxyPath", "true");
+        dataAddress.put("proxyBody", "true");
+        dataAddress.put("proxyMethod", "true");
+        dataAddress.put("authKey", "x-api-key");
+        dataAddress.put("authCode", variablesService.getApiKey());
+        body.set("dataAddress", dataAddress);
+
+        return body;
+    }
+
     /**
      * Build a request body for a request to register an api method as an asset in DSP protocol.
      *
@@ -206,6 +242,20 @@ public class EdcRequestBodyBuilder {
         assetsSelector.put("operandLeft", EDC_NAMESPACE + "id");
         assetsSelector.put("operator", "=");
         assetsSelector.put("operandRight", variablesService.getApiAssetId(apiMethod));
+        return body;
+    }
+
+    public JsonNode buildContractDefinitionForDTR(String bpnl, int port) {
+        var body = getEdcContextObject();
+        body.put("@id", bpnl + "_contractdefinition_for_DTR");
+        body.put("accessPolicyId", bpnl + "_policy");
+        body.put("contractPolicyId", bpnl + "_policy");
+        var assetsSelector = MAPPER.createObjectNode();
+        body.set("assetsSelector", assetsSelector);
+        assetsSelector.put("@type", "CriterionDto");
+        assetsSelector.put("operandLeft", EDC_NAMESPACE + "id");
+        assetsSelector.put("operator", "=");
+        assetsSelector.put("operandRight", "DigitalTwinRegistryId" + port);
         return body;
     }
 
