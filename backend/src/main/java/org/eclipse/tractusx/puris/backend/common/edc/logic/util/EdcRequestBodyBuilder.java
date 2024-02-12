@@ -171,6 +171,7 @@ public class EdcRequestBodyBuilder {
         constraintObject.set("odrl:operator", operatorObject);
         operatorObject.put("@id", "odrl:eq");
         constraintObject.put("odrl:rightOperand", "active");
+        log.info("POLICY\n" + body.toPrettyString());
         return body;
     }
 
