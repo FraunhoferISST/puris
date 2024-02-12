@@ -416,6 +416,7 @@ public class EdcAdapterService {
                     if (("https://w3id.org/catenax/taxonomy#" + apiMethod.CX_TAXO).equals(dctTypeObject.get("@id").asText())) {
                         if (apiMethod.TYPE.equals(entry.get("asset:prop:type").asText())) {
                             if ("1.0".equals(entry.get("https://w3id.org/catenax/ontology/common#version").asText())) {
+                                log.info("Catalog Item\n" + entry.toPrettyString());
                                 if (targetCatalogEntry == null) {
                                     if (variablesService.isUseFrameworkPolicy()) {
                                         if (testFrameworkAgreementConstraint(entry)) {
