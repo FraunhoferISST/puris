@@ -521,84 +521,170 @@ public class EdcAdapterService {
      * @return A String array or null, if negotiation or transfer have failed or the authCode did not arrive
      */
     public String[] getContractForItemStockApi(Partner partner, DT_ApiMethodEnum apiMethod) {
-            try {
-                var responseNode = getCatalog(partner.getEdcUrl());
-                var catalogArray = responseNode.get("dcat:dataset");
-                // If there is exactly one asset, the catalogContent will be a JSON object.
-                // In all other cases catalogContent will be a JSON array.
-                // For the sake of uniformity we will embed a single object in an array.
-                if (catalogArray.isObject()) {
-                    catalogArray = objectMapper.createArrayNode().add(catalogArray);
-                }
-                JsonNode targetCatalogEntry = null;
+        try {
+            var responseNode = getCatalog(partner.getEdcUrl());
+            var catalogArray = responseNode.get("dcat:dataset");
+            // If there is exactly one asset, the catalogContent will be a JSON object.
+            // In all other cases catalogContent will be a JSON array.
+            // For the sake of uniformity we will embed a single object in an array.
+            if (catalogArray.isObject()) {
+                catalogArray = objectMapper.createArrayNode().add(catalogArray);
+            }
+            JsonNode targetCatalogEntry = null;
 
-                for(var entry : catalogArray) {
-                    var dctTypeObject = entry.get("dct:type");
-                    if(dctTypeObject != null) {
-                        if(("https://w3id.org/catenax/taxonomy#" + apiMethod.CX_TAXO).equals(dctTypeObject.get("@id").asText())) {
-                            if(apiMethod.TYPE.equals(entry.get("asset:prop:type").asText())) {
-                                if("1.0".equals(entry.get("https://w3id.org/catenax/ontology/common#version").asText())) {
-                                    if(targetCatalogEntry == null) {
-                                        targetCatalogEntry = entry;
-                                    } else {
-                                        log.warn("Ambiguous catalog entries found! \n" + catalogArray.toPrettyString());
-                                    }
+            for(var entry : catalogArray) {
+                var dctTypeObject = entry.get("dct:type");
+                if(dctTypeObject != null) {
+                    if(("https://w3id.org/catenax/taxonomy#" + apiMethod.CX_TAXO).equals(dctTypeObject.get("@id").asText())) {
+                        if(apiMethod.TYPE.equals(entry.get("asset:prop:type").asText())) {
+                            if("1.0".equals(entry.get("https://w3id.org/catenax/ontology/common#version").asText())) {
+                                if(targetCatalogEntry == null) {
+                                    targetCatalogEntry = entry;
+                                } else {
+                                    log.warn("Ambiguous catalog entries found! \n" + catalogArray.toPrettyString());
                                 }
                             }
                         }
                     }
                 }
-                if(targetCatalogEntry == null) {
-                    log.error("Could not find api asset " + apiMethod + " at partner " + partner.getBpnl() +  " 's catalog");
-                    return null;
-                }
-                String assetApiId = targetCatalogEntry.get("@id").asText();
-                JsonNode negotiationResponse = initiateNegotiation(partner, targetCatalogEntry);
-                String negotiationId = negotiationResponse.get("@id").asText();
-                // Await confirmation of contract and contractId
-                String contractId = null;
-                for (int i = 0; i < 100; i++) {
-                    Thread.sleep(100);
-                    var responseObject = getNegotiationState(negotiationId);
-                    if ("FINALIZED".equals(responseObject.get("edc:state").asText())) {
-                        contractId = responseObject.get("edc:contractAgreementId").asText();
-                        break;
-                    }
-                }
-                if (contractId == null) {
-                    var negotiationState = getNegotiationState(negotiationId);
-                    log.warn("no contract id, last negotiation state: \n" + negotiationState.toPrettyString());
-                    log.error("Failed to obtain " + assetApiId + " from " + partner.getEdcUrl());
-                    return null;
-                }
-
-                // Initiate transfer of edr
-                var transferResp = initiateProxyPullTransfer(partner, contractId, assetApiId);
-                String transferId = transferResp.get("@id").asText();
-                for (int i = 0; i < 100; i++) {
-                    Thread.sleep(100);
-                    transferResp = getTransferState(transferId);
-                    if ("STARTED".equals(transferResp.get("edc:state").asText())) {
-                        break;
-                    }
-                }
-
-                // Await arrival of edr
-                for (int i = 0; i < 100; i++) {
-                    Thread.sleep(100);
-                    EDR_Dto edr_Dto = edrService.findByTransferId(transferId);
-                    if (edr_Dto != null) {
-                        log.info("Successfully negotiated for " + assetApiId + " with " + partner.getEdcUrl());
-                        return new String[]{edr_Dto.authKey(), edr_Dto.authCode(), edr_Dto.endpoint(), contractId};
-                    }
-                }
-                log.warn("did not receive authCode");
-                log.error("Failed to obtain " + assetApiId + " from " + partner.getEdcUrl());
-                return null;
-
-            } catch (Exception e) {
-                log.error("Failed to get contract for " + apiMethod + " from " + partner.getBpnl(), e);
+            }
+            if(targetCatalogEntry == null) {
+                log.error("Could not find api asset " + apiMethod + " at partner " + partner.getBpnl() +  " 's catalog");
                 return null;
             }
+            String assetApiId = targetCatalogEntry.get("@id").asText();
+            JsonNode negotiationResponse = initiateNegotiation(partner, targetCatalogEntry);
+            String negotiationId = negotiationResponse.get("@id").asText();
+            // Await confirmation of contract and contractId
+            String contractId = null;
+            for (int i = 0; i < 100; i++) {
+                Thread.sleep(100);
+                var responseObject = getNegotiationState(negotiationId);
+                if ("FINALIZED".equals(responseObject.get("edc:state").asText())) {
+                    contractId = responseObject.get("edc:contractAgreementId").asText();
+                    break;
+                }
+            }
+            if (contractId == null) {
+                var negotiationState = getNegotiationState(negotiationId);
+                log.warn("no contract id, last negotiation state: \n" + negotiationState.toPrettyString());
+                log.error("Failed to obtain " + assetApiId + " from " + partner.getEdcUrl());
+                return null;
+            }
+
+            // Initiate transfer of edr
+            var transferResp = initiateProxyPullTransfer(partner, contractId, assetApiId);
+            String transferId = transferResp.get("@id").asText();
+            for (int i = 0; i < 100; i++) {
+                Thread.sleep(100);
+                transferResp = getTransferState(transferId);
+                if ("STARTED".equals(transferResp.get("edc:state").asText())) {
+                    break;
+                }
+            }
+
+            // Await arrival of edr
+            for (int i = 0; i < 100; i++) {
+                Thread.sleep(100);
+                EDR_Dto edr_Dto = edrService.findByTransferId(transferId);
+                if (edr_Dto != null) {
+                    log.info("Successfully negotiated for " + assetApiId + " with " + partner.getEdcUrl());
+                    return new String[]{edr_Dto.authKey(), edr_Dto.authCode(), edr_Dto.endpoint(), contractId};
+                }
+            }
+            log.warn("did not receive authCode");
+            log.error("Failed to obtain " + assetApiId + " from " + partner.getEdcUrl());
+            return null;
+
+        } catch (Exception e) {
+            log.error("Failed to get contract for " + apiMethod + " from " + partner.getBpnl(), e);
+            return null;
+        }
+    }
+
+    public String[] getContractForDTR(Partner partner) {
+        try {
+            var responseNode = getCatalog(partner.getEdcUrl());
+            var catalogArray = responseNode.get("dcat:dataset");
+            // If there is exactly one asset, the catalogContent will be a JSON object.
+            // In all other cases catalogContent will be a JSON array.
+            // For the sake of uniformity we will embed a single object in an array.
+            if (catalogArray.isObject()) {
+                catalogArray = objectMapper.createArrayNode().add(catalogArray);
+            }
+            JsonNode targetCatalogEntry = null;
+
+            for(var entry : catalogArray) {
+                var dctTypeObject = entry.get("dct:type");
+                if(dctTypeObject != null) {
+                    if(("https://w3id.org/catenax/taxonomy#DigitalTwinRegistry").equals(dctTypeObject.get("@id").asText())) {
+                        log.info("dct:type found");
+                        if(entry.get("asset:prop:type").asText().equals("data.core.digitalTwinRegistry")) {
+                            log.info("asset:prop:type found");
+                            if("3.0".equals(entry.get("https://w3id.org/catenax/ontology/common#version").asText())) {
+                                log.info("https://w3id.org/catenax/ontology/common#version found");
+                                if(targetCatalogEntry == null) {
+                                    log.info("Catalog entry found and set");
+                                    targetCatalogEntry = entry;
+                                } else {
+                                    log.warn("Ambiguous catalog entries found! \n" + catalogArray.toPrettyString());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(targetCatalogEntry == null) {
+                log.error("Could not find asset DTR at partner " + partner.getBpnl() +  " 's catalog");
+                return null;
+            }
+            String assetApiId = targetCatalogEntry.get("@id").asText();
+            JsonNode negotiationResponse = initiateNegotiation(partner, targetCatalogEntry);
+            String negotiationId = negotiationResponse.get("@id").asText();
+            // Await confirmation of contract and contractId
+            String contractId = null;
+            for (int i = 0; i < 100; i++) {
+                Thread.sleep(100);
+                var responseObject = getNegotiationState(negotiationId);
+                if ("FINALIZED".equals(responseObject.get("edc:state").asText())) {
+                    contractId = responseObject.get("edc:contractAgreementId").asText();
+                    break;
+                }
+            }
+            if (contractId == null) {
+                var negotiationState = getNegotiationState(negotiationId);
+                log.warn("no contract id, last negotiation state: \n" + negotiationState.toPrettyString());
+                log.error("Failed to obtain " + assetApiId + " from " + partner.getEdcUrl());
+                return null;
+            }
+
+            // Initiate transfer of edr
+            var transferResp = initiateProxyPullTransfer(partner, contractId, assetApiId);
+            String transferId = transferResp.get("@id").asText();
+            for (int i = 0; i < 100; i++) {
+                Thread.sleep(100);
+                transferResp = getTransferState(transferId);
+                if ("STARTED".equals(transferResp.get("edc:state").asText())) {
+                    break;
+                }
+            }
+
+            // Await arrival of edr
+            for (int i = 0; i < 100; i++) {
+                Thread.sleep(100);
+                EDR_Dto edr_Dto = edrService.findByTransferId(transferId);
+                if (edr_Dto != null) {
+                    log.info("Successfully negotiated for " + assetApiId + " with " + partner.getEdcUrl());
+                    return new String[]{edr_Dto.authKey(), edr_Dto.authCode(), edr_Dto.endpoint(), contractId};
+                }
+            }
+            log.warn("did not receive authCode");
+            log.error("Failed to obtain " + assetApiId + " from " + partner.getEdcUrl());
+            return null;
+
+        } catch (Exception e) {
+            log.error("Failed to get contract for DTR from " + partner.getBpnl(), e);
+            return null;
+        }
     }
 }

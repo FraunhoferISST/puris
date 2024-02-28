@@ -1,0 +1,325 @@
+{
+	"info": {
+		"_postman_id": "8554f20c-1fa7-40dd-a32c-1fba0d6a1629",
+		"name": "POC_Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29592405"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8081/catena/edc/assets",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_PURIS_BACKEND_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/catena/edc/assets?assetId=",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"catena",
+						"edc",
+						"assets"
+					],
+					"query": [
+						{
+							"key": "assetId",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/catena/pocDt/registerDtrCustomer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_PURIS_BACKEND_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/catena/pocDt/registerDtrCustomer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"catena",
+						"pocDt",
+						"registerDtrCustomer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/catena/pocDt/getShellCustomer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_PURIS_BACKEND_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/catena/pocDt/getShellCustomer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"catena",
+						"pocDt",
+						"getShellCustomer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8082/catena/pocDt/registerDtrSupplier",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{SUPPLIER_PURIS_BACKEND_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8082/catena/pocDt/registerDtrSupplier",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"catena",
+						"pocDt",
+						"registerDtrSupplier"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/catena/pocDt/getShellSupplier",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_PURIS_BACKEND_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/catena/pocDt/getShellSupplier",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"catena",
+						"pocDt",
+						"getShellSupplier"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/catena/pocDt/negotiateShellSupplier",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_PURIS_BACKEND_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/catena/pocDt/negotiateShellSupplier",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"catena",
+						"pocDt",
+						"negotiateShellSupplier"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/catena/pocDt/submodal/value",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_PURIS_BACKEND_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/catena/pocDt/submodel/value",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"catena",
+						"pocDt",
+						"submodel",
+						"value"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/catena/pocDt/registerSubmodel",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_PURIS_BACKEND_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/catena/pocDt/registerSubmodel",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"catena",
+						"pocDt",
+						"registerSubmodel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/catena/pocDt/showAAS",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_PURIS_BACKEND_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/catena/pocDt/showAAS",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"catena",
+						"pocDt",
+						"showAAS"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8181/management/v3/assets",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_EDC_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8181/management/v3/assets/request",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"management",
+						"v3",
+						"assets",
+						"request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8181/management/v2/catalog",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "{{CUSTOMER_EDC_API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"@context\": {},\n    \"@type\": \"CatalogRequest\",\n    \"protocol\": \"dataspace-protocol-http\",\n    \"counterPartyAddress\": \"{{CUSTOMER_EDC_EXT_HOSTNAME}}/{{PROTOCOL_PATH}}\",\n    \"querySpec\": {\n        \"offset\": 0,\n        \"limit\": 100,\n        \"filter\": \"\",\n        \"range\": {\n            \"from\": 0,\n            \"to\": 100\n        },\n        \"filterExpression\": []\n    }\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8181/management/v2/catalog/request",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"management",
+						"v2",
+						"catalog",
+						"request"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

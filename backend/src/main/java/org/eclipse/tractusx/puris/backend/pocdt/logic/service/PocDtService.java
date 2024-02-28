@@ -29,6 +29,7 @@ import java.io.IOException;
 public interface PocDtService {
 
     Response sendPostRequest(JsonNode requestBody, String url) throws IOException;
+    Response sendGetRequest(String url, String bpn) throws IOException;
     boolean registerAAS(int port);
     JsonNode buildAAS(int port);
     JsonNode buildTestSubmodel();

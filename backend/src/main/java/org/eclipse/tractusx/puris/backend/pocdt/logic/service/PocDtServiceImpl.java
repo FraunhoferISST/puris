@@ -66,18 +66,45 @@ public class PocDtServiceImpl implements PocDtService {
         return CLIENT.newCall(request).execute();
     }
 
+    public Response sendGetRequest(String url, String bpn) throws IOException {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
+
+        if(bpn.equals("NULL"))
+        {
+            var request = new Request.Builder()
+                .get()
+                .url(urlBuilder.build())
+                .header("Content-Type", "application/json")
+                .build();
+            return CLIENT.newCall(request).execute();
+        }
+        else {
+            var request = new Request.Builder()
+                .get()
+                .url(urlBuilder.build())
+                .header("Content-Type", "application/json")
+                .header("Edc-Bpn", bpn)
+                .build();
+            return CLIENT.newCall(request).execute();
+        }
+    }
+
     public boolean registerAAS(int port)
     {
         try {
             var url = "http://dtr-1:4243/api/v3.0/shell-descriptors";
             if(port == 4244)
             {
-                url = "http://dtr-2:4244/api/v3.0/shell-descriptors";
+                url = "http://dtr-2:4243/api/v3.0/shell-descriptors";
             }
             var response = sendPostRequest(buildAAS(port), url);
             boolean result = response.isSuccessful();
             if (!result) {
                 log.warn("False result while registering AAS to DTR \n" + response.body().string());
+            }
+            else
+            {
+                log.info("Register AAS successful: " + response.message());
             }
             response.body().close();
             return result;
@@ -117,8 +144,10 @@ public class PocDtServiceImpl implements PocDtService {
         endpoint.put("interface", "interfaceNameExample");
 
         var info = MAPPER.createObjectNode();
+        var bpn = "BPNL1234567890ZZ";
         if(port == 4243) {
             info.put("href", "http://localhost:8081/catena/pocDt/submodel/value");
+            bpn = "BPNL4444444444XX";
         }
         else
         {
@@ -157,21 +186,18 @@ public class PocDtServiceImpl implements PocDtService {
         semId.put("type", "ExternalReference");
 
         var semIdKey = MAPPER.createObjectNode();
-        semIdKey.put("type", "Submodel");
-        semIdKey.put("value", "sematicIdExample");
+        semIdKey.put("type", "Property");
+        semIdKey.put("value", bpn);
 
         var semIdKeys = MAPPER.createArrayNode();
         semIdKeys.add(semIdKey);
 
         semId.set("keys", semIdKeys);
 
-        var semIds = MAPPER.createArrayNode();
-        semIds.add(semId);
-
         var specAssetId = MAPPER.createObjectNode();
-        specAssetId.set("supplementalSematincIds", semIds);
-        specAssetId.put("name", "identifier1KeyExample");
-        specAssetId.put("value", "identifier1ValueExample");
+        specAssetId.set("externalSubjectId", semId);
+        specAssetId.put("name", "serialnr");
+        specAssetId.put("value", "12345");
 
         var specAssetIds = MAPPER.createArrayNode();
         specAssetIds.add(specAssetId);
@@ -274,6 +300,46 @@ public class PocDtServiceImpl implements PocDtService {
         dataAddress.put("proxyMethod", "true");
         dataAddress.put("authKey", "x-api-key");
         dataAddress.put("authCode", variablesService.getApiKey());
+        body.set("dataAddress", dataAddress);
+
+        return body;
+    }
+
+    public JsonNode buildTestSubmodelAssetStockExchange() {
+        var body = MAPPER.createObjectNode();
+
+        var context = MAPPER.createObjectNode();
+        context.put(VOCAB_KEY, EDC_NAMESPACE);
+        context.put("cx-common", CX_COMMON_NAMESPACE);
+        context.put("cx-taxo", CX_TAXO_NAMESPACE);
+        context.put("dct", DCT_NAMESPACE);
+        context.put("aas-semantics", "https://admin-shell.io/aas/3/0/HasSemantics/");
+        body.set("@context", context);
+
+        body.put("@id", "TestSubmodelId");
+
+        var propertiesObject = MAPPER.createObjectNode();
+        var dctTypeObject = MAPPER.createObjectNode();
+        dctTypeObject.put("@id", "cx-taxo:Submodel");
+        propertiesObject.set("dct:type", dctTypeObject);
+        propertiesObject.put("cx-common:version", "3.0");
+        var aasSemantics = MAPPER.createObjectNode();
+        aasSemantics.put("@id", "urn:samm:io.catenax.item_stock:2.0.0#ItemStock");
+        propertiesObject.set("aas-semantics:semanticId", aasSemantics);
+        body.set("properties", propertiesObject);
+
+        var privateProperties = MAPPER.createObjectNode();
+        body.set("privateProperties", privateProperties);
+
+        var dataAddress = MAPPER.createObjectNode();
+        dataAddress.put("@type", "DataAddress");
+        dataAddress.put("type", "HttpData");
+        String url = "submodel url goes here";
+        dataAddress.put("baseUrl", url);
+        dataAddress.put("proxyQueryParams", "false");
+        dataAddress.put("proxyBody", "false");
+        dataAddress.put("proxyPath", "true");
+        dataAddress.put("proxyMethod", "false");
         body.set("dataAddress", dataAddress);
 
         return body;
