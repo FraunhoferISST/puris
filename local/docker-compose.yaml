@@ -73,6 +73,16 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-all:5432/puris_customer
       SPRING_DATASOURCE_USERNAME: ${PG_USER}
       SPRING_DATASOURCE_PASSWORD: ${PG_PW}
+#      SERVER_ERROR_INCLUDE-MESSAGE: always
+      server.error.include-message: always
+#      PURIS_DTR_IDP_EDC-CLIENT_ID: ${KC_MANAGE_CLIENT_ID}
+      puris.dtr.idp.edc-client.id: ${KC_MANAGE_CLIENT_ID}
+#      PURIS_DTR_IDP_EDC-CLIENT_SECRET_ALIAS: ${CUSTOMER_KC_DTR_PURIS_CLIENT_ALIAS}
+      puris.dtr.idp.edc-client.secret.alias: ${CUSTOMER_KC_DTR_PURIS_CLIENT_ALIAS}
+#      PURIS_DTR_IDP_PURIS-CLIENT_ID: ${KC_MANAGE_CLIENT_ID}
+      puris.dtr.idp.puris-client.id: ${KC_MANAGE_CLIENT_ID}
+#      PURIS_DTR_IDP_PURIS-CLIENT_SECRET: ${CUSTOMER_KC_DTR_PURIS_CLIENT_SECRET}
+      puris.dtr.idp.puris-client.secret: ${CUSTOMER_KC_DTR_PURIS_CLIENT_SECRET}
     networks:
       - miw-net
     extra_hosts:
@@ -144,6 +154,17 @@ services:
       file: ./tractus-x-edc/docker-compose.yaml
       service: control-plane
     container_name: customer-control-plane
+    environment:
+#      EDC_DATASOURCE_POLICY-MONITOR_NAME: policy-monitor
+      edc.datasource.policy-monitor.name: policy-monitor
+#      EDC_DATASOURCE_POLICY-MONITOR_URL: jdbc:postgresql://postgres-all:5432/edc_customer
+      edc.datasource.policy-monitor.url: jdbc:postgresql://postgres-all:5432/edc_customer
+#      EDC_DATASOURCE_POLICY-MONITOR_USER: ${PG_USER}
+      edc.datasource.policy-monitor.user: ${PG_USER}
+#      EDC_DATASOURCE_POLICY-MONITOR_PASSWORD: ${PG_PW}
+      edc.datasource.policy-monitor.password: ${PG_PW}
+#      EDC_IAM_TRUSTED-ISSUER_PORTAL_ID: did:web:mock-util-service/trusted-issuer
+      edc.iam.trusted-issuer.portal.id: did:web:mock-util-service/trusted-issuer
     env_file:
       - ./tractus-x-edc/config/customer/control-plane.properties
     ports:
@@ -172,6 +193,9 @@ services:
       - "127.0.0.1:8283:8283"
       - "127.0.0.1:8285:8285"
       - "127.0.0.1:8299:8299"
+    environment:
+#      EDC_IAM_TRUSTED-ISSUER_PORTAL_ID: web:mock-util-service/trusted-issuer
+      edc.iam.trusted-issuer.portal.id: web:mock-util-service/trusted-issuer
     env_file:
       - ./tractus-x-edc/config/customer/data-plane.properties
     networks:
@@ -231,6 +255,16 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-all:5432/puris_supplier
       SPRING_DATASOURCE_USERNAME: ${PG_USER}
       SPRING_DATASOURCE_PASSWORD: ${PG_PW}
+#      SERVER_ERROR_INCLUDE-MESSAGE: always
+      server.error.include-message: always
+#      PURIS_DTR_IDP_EDC-CLIENT_ID: ${KC_MANAGE_CLIENT_ID}
+      puris.dtr.idp.edc-client.id: ${KC_MANAGE_CLIENT_ID}
+#      PURIS_DTR_IDP_EDC-CLIENT_SECRET_ALIAS: ${SUPPLIER_KC_DTR_PURIS_CLIENT_ALIAS}
+      puris.dtr.idp.edc-client.secret.alias: ${SUPPLIER_KC_DTR_PURIS_CLIENT_ALIAS}
+#      PURIS_DTR_IDP_PURIS-CLIENT_ID: ${KC_MANAGE_CLIENT_ID}
+      puris.dtr.idp.puris-client.id: ${KC_MANAGE_CLIENT_ID}
+#      PURIS_DTR_IDP_PURIS-CLIENT_SECRET: ${SUPPLIER_KC_DTR_PURIS_CLIENT_SECRET}
+      puris.dtr.idp.puris-client.secret: ${SUPPLIER_KC_DTR_PURIS_CLIENT_SECRET}
     networks:
       - miw-net
     extra_hosts:
@@ -283,6 +317,17 @@ services:
       - "127.0.0.1:9183:9183"
       - "127.0.0.1:9184:9184"
       - "127.0.0.1:1044:1044"
+    environment:
+#      EDC_DATASOURCE_POLICY-MONITOR_NAME: policy-monitor
+      edc.datasource.policy-monitor.name: policy-monitor
+#      EDC_DATASOURCE_POLICY-MONITOR_URL: jdbc:postgresql://postgres-all:5432/edc_supplier
+      edc.datasource.policy-monitor.url: jdbc:postgresql://postgres-all:5432/edc_supplier
+#      EDC_DATASOURCE_POLICY-MONITOR_USER: ${PG_USER}
+      edc.datasource.policy-monitor.user: ${PG_USER}
+#      EDC_DATASOURCE_POLICY-MONITOR_PASSWORD: ${PG_PW}
+      edc.datasource.policy-monitor.password: ${PG_PW}
+#      EDC_IAM_TRUSTED-ISSUER_PORTAL_ID: web:mock-util-service/trusted-issuer
+      edc.iam.trusted-issuer.portal.id: web:mock-util-service/trusted-issuer
     env_file:
       - ./tractus-x-edc/config/supplier/control-plane.properties
     networks:
@@ -305,6 +350,9 @@ services:
       - "127.0.0.1:9283:9283"
       - "127.0.0.1:9285:9285"
       - "127.0.0.1:9299:9299"
+    environment:
+#      EDC_IAM_TRUSTED-ISSUER_PORTAL_ID: web:mock-util-service/trusted-issuer
+      edc.iam.trusted-issuer.portal.id: web:mock-util-service/trusted-issuer
     env_file:
       - ./tractus-x-edc/config/supplier/data-plane.properties
     networks:
