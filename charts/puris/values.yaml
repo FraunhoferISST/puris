@@ -204,7 +204,7 @@ frontend:
       realm: "Catena-X"
       # -- Name of the client which is used for the application.
       clientId: "appXYZ"
-      # -- URL to use as keycloak redirect url.
+      # -- URL to use as keycloak redirect url. If empty the frontend will not pass it for authentication.
       redirectUrlFrontend: "https://your-frontend-url.com"
     rateLimiting:
       # -- Bucket zone limit for rate limiting in nginx.

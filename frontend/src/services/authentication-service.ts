@@ -40,8 +40,8 @@ const init = () => {
         keycloak
             .init({
                 onLoad: 'login-required',
-                redirectUri: config.auth.IDP_REDIRECT_URL_FRONTEND,
-                enableLogging: true,
+                redirectUri: config.auth.IDP_REDIRECT_URL_FRONTEND || undefined,
+                pkceMethod: 'S256'
             })
             .then((authenticated) => {
                 if (!authenticated) {

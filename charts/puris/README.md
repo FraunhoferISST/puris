@@ -188,7 +188,7 @@ dependencies:
 | frontend.puris.keycloak.clientId | string | `"appXYZ"` | Name of the client which is used for the application. |
 | frontend.puris.keycloak.disabled | bool | `true` | Disable the Keycloak integration. |
 | frontend.puris.keycloak.realm | string | `"Catena-X"` | Name of the Realm of the keycloak instance. |
-| frontend.puris.keycloak.redirectUrlFrontend | string | `"https://your-frontend-url.com"` | URL to use as keycloak redirect url. |
+| frontend.puris.keycloak.redirectUrlFrontend | string | `"https://your-frontend-url.com"` | URL to use as keycloak redirect url. If empty the frontend will not pass it for authentication. |
 | frontend.puris.keycloak.url | string | `"https://idp.com/auth"` | The URL to the IDP that should be used. |
 | frontend.puris.rateLimiting.burst | int | `30` | Burst rate limiting for nginx. |
 | frontend.puris.rateLimiting.limit | string | `"10m"` | Bucket zone limit for rate limiting in nginx. |
